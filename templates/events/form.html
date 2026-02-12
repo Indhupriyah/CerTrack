@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if event else 'Add' }} Event{% endblock %}
+{% block page_title %}{{ 'Edit' if event else 'Add' }} Event{% endblock %}
+{% block content %}
+<div class="form-page">
+  <form method="post" class="form-card">
+    <label for="name">Event name</label>
+    <input type="text" id="name" name="name" value="{{ event.name if event else '' }}" required>
+    <label for="event_type">Event type</label>
+    <select id="event_type" name="event_type">
+      {% for t in event_types %}
+      <option value="{{ t }}" {{ 'selected' if event and event.event_type==t else '' }}>{{ t.replace('_',' ').title() }}</option>
+      {% endfor %}
+    </select>
+    <label for="organizer">Organizer</label>
+    <input type="text" id="organizer" name="organizer" value="{{ event.organizer if event else '' }}">
+    <label for="participation_mode">Mode</label>
+    <select id="participation_mode" name="participation_mode">
+      <option value="online" {{ 'selected' if not event or event.participation_mode=='online' else '' }}>Online</option>
+      <option value="offline" {{ 'selected' if event and event.participation_mode=='offline' else '' }}>Offline</option>
+    </select>
+    <div id="location-field" class="form-field-toggle" style="display: {{ 'block' if event and event.participation_mode=='offline' else 'none' }};">
+      <label for="location">Venue / Location</label>
+      <input type="text" id="location" name="location" value="{{ event.location if event and event.location else '' }}" placeholder="e.g. Convention Center, City">
+    </div>
+    <label for="stage">Stage</label>
+    <select id="stage" name="stage">
+      {% for s in stages %}
+      <option value="{{ s }}" {{ 'selected' if event and event.stage==s else '' }}>{{ s.replace('_',' ').title() }}</option>
+      {% endfor %}
+    </select>
+    <label for="result_status">Result status</label>
+    <select id="result_status" name="result_status">
+      <option value="">—</option>
+      {% for r in result_statuses %}
+      <option value="{{ r }}" {{ 'selected' if event and event.result_status==r else '' }}>{{ r.replace('_',' ').title() }}</option>
+      {% endfor %}
+    </select>
+    <label for="registration_deadline">Registration deadline</label>
+    <input type="date" id="registration_deadline" name="registration_deadline" value="{{ event.registration_deadline.strftime('%Y-%m-%d') if event and event.registration_deadline else '' }}">
+    <label for="event_date">Event date</label>
+    <input type="date" id="event_date" name="event_date" value="{{ event.event_date.strftime('%Y-%m-%d') if event and event.event_date else '' }}">
+    <label for="result_date">Result date</label>
+    <input type="date" id="result_date" name="result_date" value="{{ event.result_date.strftime('%Y-%m-%d') if event and event.result_date else '' }}">
+    <label for="personal_notes">Personal notes</label>
+    <textarea id="personal_notes" name="personal_notes" rows="4">{{ event.personal_notes if event else '' }}</textarea>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="{{ url_for('events.list_view') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script>
+document.getElementById('participation_mode').addEventListener('change', function() {
+  document.getElementById('location-field').style.display = this.value === 'offline' ? 'block' : 'none';
+});
+</script>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="landing">
+  <div class="landing-hero">
+    <h1 class="landing-title">CerTrack</h1>
+    <p class="landing-subtitle">Track certifications, plan events, build your verified achievement portfolio.</p>
+    <div class="landing-actions">
+      <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log in</a>
+      <a href="{{ url_for('auth.signup') }}" class="btn btn-secondary">Sign up</a>
+    </div>
+    <div class="landing-oauth">
+      <a href="{{ url_for('auth.google_login') }}" class="btn btn-oauth">Google</a>
+      <a href="{{ url_for('auth.github_login') }}" class="btn btn-oauth">GitHub</a>
+    </div>
+  </div>
+  <div class="landing-features">
+    <div class="feature-card">
+      <span class="feature-icon">📜</span>
+      <h3>Certifications</h3>
+      <p>Track AWS, cloud, security, and more with Kanban and calendar views.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🏆</span>
+      <h3>Events</h3>
+      <p>Hackathons, workshops, contests—never miss a deadline.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🔗</span>
+      <h3>Portfolio</h3>
+      <p>Share your verified achievements with recruiters via a public link.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

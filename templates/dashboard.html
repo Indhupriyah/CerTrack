@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard premium-ui">
+  <section class="summary-cards">
+    <a href="{{ url_for('certifications.list_view') }}" class="stat-card">
+      <span class="stat-value">{{ total_certs }}</span>
+      <span class="stat-label">Total Certifications</span>
+    </a>
+    <a href="{{ url_for('certifications.list_view') }}" class="stat-card">
+      <span class="stat-value">{{ upcoming }}</span>
+      <span class="stat-label">Upcoming</span>
+    </a>
+    <a href="{{ url_for('certifications.list_view') }}" class="stat-card">
+      <span class="stat-value">{{ in_progress }}</span>
+      <span class="stat-label">In Progress</span>
+    </a>
+    <a href="{{ url_for('certifications.list_view') }}" class="stat-card stat-success">
+      <span class="stat-value">{{ completed }}</span>
+      <span class="stat-label">Completed</span>
+    </a>
+    <a href="{{ url_for('events.list_view') }}" class="stat-card">
+      <span class="stat-value">{{ upcoming_events }}</span>
+      <span class="stat-label">Upcoming Events</span>
+    </a>
+  </section>
+
+  <div class="analytics-grid">
+    <div class="analytics-card chart-card">
+      <h3>Monthly Completion Trend</h3>
+      <div class="bar-chart">
+        {% for item in monthly_trend %}
+        <div class="bar-row">
+          <span class="bar-label">{{ item.month }}</span>
+          <div class="bar-track"><div class="bar-fill" style="width: {{ (item.count / (monthly_goal or 1) * 100) if monthly_goal else 0 }}%"></div></div>
+          <span class="bar-value">{{ item.count }}</span>
+        </div>
+        {% else %}
+        <p class="chart-empty">Complete certifications to see trends</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="analytics-card">
+      <h3>Monthly Goal</h3>
+      <div class="goal-display">
+        <span class="goal-current">{{ monthly_completed }}</span>
+        <span class="goal-sep">/</span>
+        <span class="goal-target">{{ monthly_goal }}</span>
+      </div>
+      <p class="goal-desc">certifications this month</p>
+      <div class="progress-bar premium"><div class="progress-fill" style="width: {{ (monthly_completed / monthly_goal * 100) if monthly_goal else 0 }}%"></div></div>
+    </div>
+
+    <div class="analytics-card">
+      <h3>Overall Completion</h3>
+      <div class="completion-ring">
+        <svg viewBox="0 0 36 36">
+          <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+          <path class="ring-fill" stroke-dasharray="{{ completion_pct }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+        </svg>
+        <span class="ring-value">{{ completion_pct }}%</span>
+      </div>
+    </div>
+
+    <div class="analytics-card streak-card">
+      <h3>Study Streak</h3>
+      <span class="streak-value">{{ study_streak }} days</span>
+    </div>
+  </div>
+
+  <div class="dashboard-row">
+    <div class="analytics-card skill-card">
+      <h3>Skill Overview</h3>
+      {% if skill_breakdown %}
+      <div class="skill-bars">
+        {% for skill, count in skill_breakdown %}
+        <div class="skill-row">
+          <span class="skill-name">{{ skill }}</span>
+          <div class="skill-track"><div class="skill-fill" style="width: {{ (count / (skill_breakdown[0][1] if skill_breakdown else 1) * 100) }}%"></div></div>
+          <span class="skill-count">{{ count }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="chart-empty">Complete certifications with skill tags</p>
+      {% endif %}
+    </div>
+
+    <div class="analytics-card deadlines-card">
+      <h3>Upcoming Deadlines</h3>
+      {% if deadlines %}
+      <ul class="deadline-list">
+        {% for d in deadlines %}
+        <li>
+          <span class="deadline-name">{{ d.name }}</span>
+          <span class="deadline-date">{{ d.date.strftime('%b %d') }}</span>
+          <span class="deadline-badge">{{ d.type }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="chart-empty">No upcoming deadlines</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

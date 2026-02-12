@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Certifications{% endblock %}
+{% block page_title %}Certifications{% endblock %}
+{% block content %}
+<div class="certifications-page">
+  <div class="page-header">
+    <a href="{{ url_for('certifications.calendar_view') }}" class="btn btn-secondary">Calendar View</a>
+  </div>
+
+  <div class="kanban">
+    <div class="kanban-column kanban-add-column">
+      <h3 class="kanban-title">Add New</h3>
+      <div class="kanban-add-card">
+        <a href="{{ url_for('certifications.add') }}" class="add-cert-btn">
+          <span class="add-cert-icon">+</span>
+          <span>Add Certification</span>
+        </a>
+      </div>
+    </div>
+    <div class="kanban-column kanban-column--upcoming">
+      <h3 class="kanban-title">Upcoming</h3>
+      <div class="kanban-cards" data-status="upcoming">
+        {% for c in upcoming %}
+        <article class="cert-card" data-id="{{ c.id }}" data-status="upcoming" draggable="true">
+          <h4><a href="{{ url_for('certifications.detail', id=c.id) }}" class="event-title-link">{{ c.name }}</a></h4>
+          <span class="cert-platform">{{ c.platform }}</span>
+          {% if c.registration_deadline %}<span class="cert-deadline">Reg: {{ c.registration_deadline.strftime('%b %d') }}{% if c.registration_deadline >= today %} ({{ (c.registration_deadline - today).days }}d left){% endif %}</span>{% endif %}
+          {% if c.expected_completion and c.expected_completion >= today %}<span class="cert-deadline">Due: {{ c.expected_completion.strftime('%b %d') }} ({{ (c.expected_completion - today).days }}d left)</span>{% endif %}
+          <div class="cert-actions">
+            <a href="{{ url_for('certifications.detail', id=c.id) }}">View</a>
+            <a href="{{ url_for('certifications.edit', id=c.id) }}">Edit</a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="kanban-column kanban-column--in-progress">
+      <h3 class="kanban-title">In Progress</h3>
+      <div class="kanban-cards" data-status="in_progress">
+        {% for c in in_progress %}
+        <article class="cert-card" data-id="{{ c.id }}" data-status="in_progress" draggable="true">
+          <h4><a href="{{ url_for('certifications.detail', id=c.id) }}" class="event-title-link">{{ c.name }}</a></h4>
+          <span class="cert-platform">{{ c.platform }}</span>
+          {% if c.expected_completion %}<span class="cert-deadline">Due: {{ c.expected_completion.strftime('%b %d') }}{% if c.expected_completion >= today %} ({{ (c.expected_completion - today).days }}d left){% endif %}</span>{% endif %}
+          <div class="cert-actions">
+            <a href="{{ url_for('certifications.detail', id=c.id) }}">View</a>
+            <a href="{{ url_for('certifications.edit', id=c.id) }}">Edit</a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="kanban-column kanban-column--completed">
+      <h3 class="kanban-title">Completed</h3>
+      <div class="kanban-cards" data-status="completed">
+        {% for c in completed %}
+        <article class="cert-card" data-id="{{ c.id }}" data-status="completed" draggable="true">
+          <h4><a href="{{ url_for('certifications.detail', id=c.id) }}" class="event-title-link">{{ c.name }}</a></h4>
+          <span class="cert-platform">{{ c.platform }}</span>
+          {% if c.completed_date %}<span class="cert-deadline">{{ c.completed_date.strftime('%b %d') }}</span>{% endif %}
+          <div class="cert-actions">
+            <a href="{{ url_for('certifications.detail', id=c.id) }}">View</a>
+            <a href="{{ url_for('certifications.edit', id=c.id) }}">Edit</a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script>
+document.querySelectorAll('.cert-card').forEach(card => {
+  card.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', card.dataset.id); });
+});
+document.querySelectorAll('.kanban-cards').forEach(col => {
+  col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
+  col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+  col.addEventListener('drop', async (e) => {
+    e.preventDefault(); col.classList.remove('drag-over');
+    const id = e.dataTransfer.getData('text/plain');
+    const status = col.dataset.status;
+    const res = await fetch(`/certifications/api/${id}/status`, {
+      method: 'PATCH', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ status })
+    });
+    if (res.ok) window.location.reload();
+  });
+});
+</script>
+{% endblock %}

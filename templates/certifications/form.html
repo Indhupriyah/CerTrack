@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if certification else 'Add' }} Certification{% endblock %}
+{% block page_title %}{{ 'Edit' if certification else 'Add' }} Certification{% endblock %}
+{% block content %}
+<div class="form-page">
+  <form method="post" class="form-card">
+    <label for="name">Certification name</label>
+    <input type="text" id="name" name="name" value="{{ certification.name if certification else '' }}" required>
+    <label for="platform">Platform</label>
+    <input type="text" id="platform" name="platform" value="{{ certification.platform if certification else '' }}" placeholder="e.g. AWS, Coursera">
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="upcoming" {{ 'selected' if certification and certification.status=='upcoming' else '' }}>Upcoming</option>
+      <option value="in_progress" {{ 'selected' if certification and certification.status=='in_progress' else '' }}>In Progress</option>
+      <option value="completed" {{ 'selected' if certification and certification.status=='completed' else '' }}>Completed</option>
+    </select>
+    <label for="skill_tags">Skill tags (comma-separated)</label>
+    <input type="text" id="skill_tags" name="skill_tags" value="{{ certification.skill_tags if certification else '' }}" placeholder="Cloud, AWS, Python, Security">
+    <label for="registration_deadline">Registration deadline</label>
+    <input type="date" id="registration_deadline" name="registration_deadline" value="{{ certification.registration_deadline.strftime('%Y-%m-%d') if certification and certification.registration_deadline else '' }}">
+    <label for="expected_completion">Expected completion date</label>
+    <input type="date" id="expected_completion" name="expected_completion" value="{{ certification.expected_completion.strftime('%Y-%m-%d') if certification and certification.expected_completion else '' }}">
+    {% if certification %}
+    <label for="completed_date">Completed date</label>
+    <input type="date" id="completed_date" name="completed_date" value="{{ certification.completed_date.strftime('%Y-%m-%d') if certification.completed_date else '' }}">
+    {% endif %}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="{{ url_for('certifications.list_view') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

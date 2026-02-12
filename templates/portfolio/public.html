@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ user.display_name or 'Portfolio' }} - CerTrack Portfolio</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="public-portfolio">
+    <header class="public-header">
+      <h1>{{ user.display_name or user.email }}</h1>
+      {% if user.linkedin_url %}<a href="{{ user.linkedin_url }}" target="_blank">LinkedIn</a>{% endif %}
+      {% if user.github_url %}<a href="{{ user.github_url }}" target="_blank">GitHub</a>{% endif %}
+    </header>
+
+    {% if skill_counts %}
+    <section class="skill-cloud">
+      <h3>Skills</h3>
+      <div class="skill-tags">
+        {% for skill, count in skill_counts.items() %}
+        <span class="skill-tag" style="font-size: {{ 0.8 + count * 0.2 }}rem">{{ skill }} ({{ count }})</span>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="portfolio-grid">
+      <h3>Certifications</h3>
+      {% for c in certifications %}
+      <article class="portfolio-card">
+        <h4>{{ c.name }}</h4>
+        <span class="portfolio-platform">{{ c.platform }}</span>
+        <span class="portfolio-date">{{ c.completed_date.strftime('%b %Y') if c.completed_date else '' }}</span>
+        {% if c.certificate_file %}
+        <a href="{{ url_for('main.uploaded_file', filename=c.certificate_file) }}" target="_blank" class="btn btn-sm">View Certificate</a>
+        {% endif %}
+      </article>
+      {% else %}
+      <p>No certifications to display.</p>
+      {% endfor %}
+    </section>
+
+    <footer class="public-footer">
+      <p>Powered by <a href="{{ url_for('main.landing') }}">CerTrack</a></p>
+    </footer>
+  </div>
+</body>
+</html>

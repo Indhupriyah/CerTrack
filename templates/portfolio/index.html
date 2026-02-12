@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Portfolio{% endblock %}
+{% block page_title %}Portfolio{% endblock %}
+{% block content %}
+<div class="portfolio-page">
+  <div class="page-actions">
+    <a href="{{ url_for('portfolio.settings') }}" class="btn btn-secondary">Settings</a>
+    {% if current_user.portfolio_public %}
+    <a href="{{ url_for('portfolio.public', slug=current_user.public_slug) }}" class="btn btn-primary" target="_blank">View Public Portfolio</a>
+    {% endif %}
+  </div>
+
+  <section class="skill-cloud">
+    <h3>Skill Overview</h3>
+    {% if skill_counts %}
+    <div class="skill-tags">
+      {% for skill, count in skill_counts.items() %}
+      <span class="skill-tag" style="font-size: {{ 0.8 + count * 0.2 }}rem">{{ skill }} ({{ count }})</span>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p>Complete certifications with skill tags to see your skill overview.</p>
+    {% endif %}
+  </section>
+
+  <section class="portfolio-grid">
+    <h3>Completed Certifications</h3>
+    {% for c in certifications %}
+    <article class="portfolio-card">
+      <h4>{{ c.name }}</h4>
+      <span class="portfolio-platform">{{ c.platform }}</span>
+      <span class="portfolio-date">{{ c.completed_date.strftime('%b %Y') if c.completed_date else '' }}</span>
+      <div class="portfolio-actions">
+        {% if c.certificate_file %}
+        <a href="{{ url_for('main.uploaded_file', filename=c.certificate_file) }}" target="_blank" class="btn btn-sm">Download</a>
+        {% endif %}
+        <a href="{{ url_for('certifications.detail', id=c.id) }}" class="btn btn-sm">View</a>
+      </div>
+    </article>
+    {% else %}
+    <p class="empty-state">No completed certifications yet. Complete certifications and upload certificates to build your portfolio.</p>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}

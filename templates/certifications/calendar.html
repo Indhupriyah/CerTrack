@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Calendar{% endblock %}
+{% block page_title %}Certifications Calendar{% endblock %}
+{% block content %}
+<div class="calendar-page">
+  <div class="calendar-header-row">
+    <div class="calendar-controls">
+    <button id="prevMonth" class="btn btn-sm">← Prev</button>
+    <h2 id="calendarTitle"></h2>
+    <button id="nextMonth" class="btn btn-sm">Next →</button>
+    </div>
+    <div class="calendar-actions">
+      <a href="{{ url_for('certifications.list_view') }}" class="btn btn-secondary">List View</a>
+      <a href="{{ url_for('certifications.add') }}" class="btn btn-primary">Add Certification</a>
+    </div>
+  </div>
+  <div id="calendar" class="calendar"></div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script>
+const container = document.getElementById('calendar');
+const titleEl = document.getElementById('calendarTitle');
+let current = new Date();
+let events = [];
+
+async function loadEvents() {
+  const res = await fetch('/api/calendar/events');
+  events = await res.json();
+  render();
+}
+
+function render() {
+  const year = current.getFullYear();
+  const month = current.getMonth();
+  titleEl.textContent = `${current.toLocaleString('default', { month: 'long' })} ${year}`;
+
+  const first = new Date(year, month, 1);
+  const last = new Date(year, month + 1, 0);
+  let html = '<div class="calendar-header"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div><div class="calendar-grid">';
+  const startDay = first.getDay();
+  for (let i = 0; i < startDay; i++) html += '<div class="cal-day empty"></div>';
+  for (let d = 1; d <= last.getDate(); d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayEvents = events.filter(e => e.start.startsWith(dateStr));
+    let dayHtml = `<div class="cal-day" data-date="${dateStr}"><span class="cal-num">${d}</span>`;
+    dayEvents.slice(0, 3).forEach(e => {
+      dayHtml += `<a href="${e.url}" class="cal-event cal-${e.color}" title="${e.title}">${e.title.slice(0, 15)}</a>`;
+    });
+    if (dayEvents.length > 3) dayHtml += `<span class="cal-more">+${dayEvents.length-3}</span>`;
+    dayHtml += '</div>';
+    html += dayHtml;
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+document.getElementById('prevMonth').onclick = () => { current.setMonth(current.getMonth() - 1); render(); };
+document.getElementById('nextMonth').onclick = () => { current.setMonth(current.getMonth() + 1); render(); };
+
+loadEvents();
+</script>
+{% endblock %}

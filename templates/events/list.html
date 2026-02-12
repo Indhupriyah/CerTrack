@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Events{% endblock %}
+{% block page_title %}Events{% endblock %}
+{% block content %}
+<div class="events-page">
+  <div class="events-header">
+    <div class="events-add-col">
+      <a href="{{ url_for('events.add') }}" class="add-event-btn">
+        <span class="add-event-icon">+</span>
+        <span>Add Event</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="events-list">
+    {% for e in events %}
+    <article class="event-card">
+      <div class="event-main">
+        <h4><a href="{{ url_for('events.detail', id=e.id) }}" class="event-title-link">{{ e.name }}</a></h4>
+        <span class="event-type">{{ e.event_type or 'Event' }}</span>
+        <span class="badge badge-{{ e.stage }}">{{ e.stage }}</span>
+        {% if e.event_date %}<span class="event-date">{{ e.event_date.strftime('%b %d, %Y') }}</span>{% endif %}
+      </div>
+      <div class="event-actions">
+        <a href="{{ url_for('events.edit', id=e.id) }}" class="btn btn-sm">Edit</a>
+        <form action="{{ url_for('events.delete', id=e.id) }}" method="post" onsubmit="return confirm('Remove this event?');" style="display:inline">
+          <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </form>
+      </div>
+    </article>
+    {% else %}
+    <p class="empty-state">No events yet. <a href="{{ url_for('events.add') }}">Add your first event</a>.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ event.name }}{% endblock %}
+{% block page_title %}{{ event.name }}{% endblock %}
+{% block content %}
+<div class="event-detail">
+  <div class="event-detail-header">
+    <div class="event-detail-title">
+      <h2>{{ event.name }}</h2>
+      <div class="event-detail-badges">
+        <span class="badge badge-{{ event.stage }}">{{ event.stage.replace('_',' ').title() }}</span>
+        <span class="badge badge-mode">{{ event.participation_mode|title }}</span>
+        {% if event.event_type %}<span class="badge badge-type">{{ event.event_type.replace('_',' ').title() }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="event-detail-actions">
+      <a href="{{ url_for('events.edit', id=event.id) }}" class="btn btn-primary">Edit</a>
+      <form action="{{ url_for('events.delete', id=event.id) }}" method="post" onsubmit="return confirm('Remove this event?');" style="display:inline">
+        <button type="submit" class="btn btn-danger">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="event-detail-grid">
+    <div class="event-detail-card">
+      <h4>Details</h4>
+      <dl class="event-meta-list">
+        <dt>Organizer</dt>
+        <dd>{{ event.organizer or '—' }}</dd>
+        <dt>Mode</dt>
+        <dd>{{ event.participation_mode|title }}</dd>
+        {% if event.participation_mode == 'offline' and event.location %}
+        <dt>Venue / Location</dt>
+        <dd class="event-location">{{ event.location }}</dd>
+        {% endif %}
+        <dt>Registration deadline</dt>
+        <dd>{{ event.registration_deadline.strftime('%b %d, %Y') if event.registration_deadline else '—' }}</dd>
+        <dt>Event date</dt>
+        <dd>{{ event.event_date.strftime('%b %d, %Y') if event.event_date else '—' }}</dd>
+        <dt>Result date</dt>
+        <dd>{{ event.result_date.strftime('%b %d, %Y') if event.result_date else '—' }}</dd>
+        {% if event.result_status %}
+        <dt>Result</dt>
+        <dd>{{ event.result_status.replace('_',' ').title() }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+
+    {% if event.personal_notes %}
+    <div class="event-detail-card event-notes-card">
+      <h4>Personal Notes</h4>
+      <div class="event-notes">{{ event.personal_notes }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="event-detail-back">
+    <a href="{{ url_for('events.list_view') }}" class="btn btn-secondary">← Back to Events</a>
+  </div>
+</div>
+{% endblock %}

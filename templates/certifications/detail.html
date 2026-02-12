@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ certification.name }}{% endblock %}
+{% block page_title %}{{ certification.name }}{% endblock %}
+{% block content %}
+<div class="cert-detail">
+  <div class="cert-detail-header card-section">
+    <div>
+      <h2>{{ certification.name }}</h2>
+      <span class="badge badge-{{ certification.status }}">{{ certification.status }}</span>
+    </div>
+    <div class="cert-detail-actions">
+      <a href="{{ url_for('certifications.edit', id=certification.id) }}" class="btn btn-secondary">Edit</a>
+      <form action="{{ url_for('certifications.delete', id=certification.id) }}" method="post" onsubmit="return confirm('Remove this certification?');" style="display:inline">
+        <button type="submit" class="btn btn-danger">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="cert-meta card-section">
+    <p><strong>Platform:</strong> {{ certification.platform or '-' }}</p>
+    <p><strong>Skills:</strong> {{ certification.skill_tags or '-' }}</p>
+    <p><strong>Registration:</strong> {{ certification.registration_deadline.strftime('%Y-%m-%d') if certification.registration_deadline else '-' }}{% if days_until_reg is not none %} <span class="days-remaining">({{ days_until_reg }} days left)</span>{% endif %}</p>
+    <p><strong>Expected completion:</strong> {{ certification.expected_completion.strftime('%Y-%m-%d') if certification.expected_completion else '-' }}{% if days_until_completion is not none %} <span class="days-remaining">({{ days_until_completion }} days left)</span>{% endif %}</p>
+    {% if certification.completed_date %}<p><strong>Completed:</strong> {{ certification.completed_date.strftime('%Y-%m-%d') }}</p>{% endif %}
+  </div>
+
+  <section class="cert-certificate card-section">
+    <h3>Certificate</h3>
+    {% if certification.certificate_file %}
+    <div class="certificate-preview">
+      <p>Certificate uploaded.</p>
+      <div class="btn-group">
+        <a href="{{ url_for('main.uploaded_file', filename=certification.certificate_file) }}" target="_blank" class="btn btn-secondary">View / Download</a>
+        <form action="{{ url_for('certifications.delete_certificate', id=certification.id) }}" method="post" onsubmit="return confirm('Remove certificate?');" style="display:inline">
+          <button type="submit" class="btn btn-danger">Remove</button>
+        </form>
+      </div>
+    </div>
+    {% else %}
+    <form action="{{ url_for('certifications.upload_certificate', id=certification.id) }}" method="post" enctype="multipart/form-data" class="cert-upload-form">
+      <label class="cert-upload-zone" for="certificate-input">
+        <input type="file" id="certificate-input" name="certificate" accept=".pdf,.png,.jpg,.jpeg" required>
+        <span class="cert-upload-text">Drop certificate here or click to browse</span>
+        <span class="cert-upload-hint">PDF, PNG, or JPG (max 16MB)</span>
+      </label>
+      <button type="submit" class="btn btn-primary">Upload Certificate</button>
+    </form>
+    {% endif %}
+  </section>
+
+  <section class="cert-resources card-section">
+    <h3>Resource Library</h3>
+    <form method="post" action="{{ url_for('certifications.add_resource', id=certification.id) }}" class="resource-form">
+      <input type="hidden" name="resource_type" value="url">
+      <input type="text" name="title" placeholder="Title" required>
+      <input type="url" name="url" placeholder="URL (YouTube, docs, etc.)">
+      <input type="text" name="notes" placeholder="Notes">
+      <button type="submit" class="btn btn-primary">Add Resource</button>
+    </form>
+    <ul class="resource-list">
+      {% for r in resources %}
+      <li>
+        <a href="{{ r.url }}" target="_blank">{{ r.title }}</a>
+        <form action="{{ url_for('certifications.delete_resource', id=certification.id, rid=r.id) }}" method="post" onsubmit="return confirm('Remove?');" style="display:inline">
+          <button type="submit" class="btn btn-sm btn-danger">×</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}

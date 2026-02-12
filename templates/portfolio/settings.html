@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block content %}
+<div class="form-page settings-page">
+  <form method="post" class="form-card">
+    <h3>Profile & Goals</h3>
+    <label for="display_name">Display name</label>
+    <input type="text" id="display_name" name="display_name" value="{{ current_user.display_name or '' }}">
+    <label for="monthly_goal">Monthly certification goal</label>
+    <input type="number" id="monthly_goal" name="monthly_goal" min="1" max="50" value="{{ current_user.monthly_goal or 5 }}" placeholder="5">
+    <p class="help">Target number of certifications to complete per month. You can change this anytime.</p>
+
+    <h3 class="form-section-title">Portfolio</h3>
+    <label class="checkbox">
+      <input type="checkbox" name="portfolio_public" {{ 'checked' if current_user.portfolio_public else '' }}> Public portfolio (shareable link)
+    </label>
+    <label for="linkedin_url">LinkedIn URL</label>
+    <input type="url" id="linkedin_url" name="linkedin_url" value="{{ current_user.linkedin_url or '' }}">
+    <label for="github_url">GitHub URL</label>
+    <input type="url" id="github_url" name="github_url" value="{{ current_user.github_url or '' }}">
+    {% if current_user.portfolio_public %}
+    <p class="help">Share link: <code>{{ request.url_root }}portfolio/public/{{ current_user.public_slug }}</code></p>
+    {% endif %}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="{{ url_for('portfolio.index') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
