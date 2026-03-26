@@ -1,34 +1,32 @@
 {% extends "base.html" %}
+{% block guest_layout_class %}landing-v2 landing-student{% endblock %}
 {% block content %}
-<div class="landing">
-  <div class="landing-hero">
-    <h1 class="landing-title">CerTrack</h1>
-    <p class="landing-subtitle">Track certifications, plan events, build your verified achievement portfolio.</p>
-    <div class="landing-actions">
-      <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log in</a>
-      <a href="{{ url_for('auth.signup') }}" class="btn btn-secondary">Sign up</a>
-    </div>
-    <div class="landing-oauth">
-      <a href="{{ url_for('auth.google_login') }}" class="btn btn-oauth">Google</a>
-      <a href="{{ url_for('auth.github_login') }}" class="btn btn-oauth">GitHub</a>
-    </div>
-  </div>
-  <div class="landing-features">
-    <div class="feature-card">
-      <span class="feature-icon">📜</span>
-      <h3>Certifications</h3>
-      <p>Track AWS, cloud, security, and more with Kanban and calendar views.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🏆</span>
-      <h3>Events</h3>
-      <p>Hackathons, workshops, contests—never miss a deadline.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🔗</span>
-      <h3>Portfolio</h3>
-      <p>Share your verified achievements with recruiters via a public link.</p>
-    </div>
-  </div>
+<div class="landing-brand"
+  style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 3rem;">
+  <img src="{{ url_for('static', filename='uploads/shcec-logo.jpg') }}"
+    alt="Sacred Heart Convent Engineering College Logo"
+    style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent); margin-bottom: 1rem; box-shadow: var(--shadow-md); object-fit: contain; background: white;">
+  <h1 class="landing-logo" style="font-size: 2.8rem; letter-spacing: -0.02em; color: var(--danger);">CerTrack</h1>
+  <p class="landing-tagline" style="margin-top: 0.5rem; line-height: 1.4;">
+    <strong style="font-size: 1.25rem; color: var(--text);">Sacred Heart Convent Engineering College</strong><br>
+    <span style="font-size: 1.05rem; color: var(--text-muted); font-weight: 500;">Villupuram</span>
+  </p>
+</div>
+<div class="landing-four-boxes" style="gap: 2rem;">
+  <a href="{{ url_for('auth.login') }}" class="login-box login-box-user">
+    <span class="login-box-icon">🎓</span>
+    <h2 class="login-box-title" style="text-align: center;">Student Portal</h2>
+    <span class="login-box-arrow">→</span>
+  </a>
+  <a href="{{ url_for('auth.admin_login') }}" class="login-box login-box-admin">
+    <span class="login-box-icon">🔐</span>
+    <h2 class="login-box-title" style="text-align: center;">Administrator Portal</h2>
+    <span class="login-box-arrow">→</span>
+  </a>
+  <a href="{{ url_for('auth.mentor_login') }}" class="login-box login-box-mentor">
+    <span class="login-box-icon">👩‍🏫</span>
+    <h2 class="login-box-title" style="text-align: center;">Faculty Mentor Portal</h2>
+    <span class="login-box-arrow">→</span>
+  </a>
 </div>
 {% endblock %}

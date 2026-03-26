@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<h2>Reports & issues</h2>
+<p>
+  <a href="{{ url_for('admin.reports') }}">All</a> |
+  <a href="{{ url_for('admin.reports', status='pending') }}">Pending</a> |
+  <a href="{{ url_for('admin.reports', status='resolved') }}">Resolved</a>
+</p>
+<table class="admin-table">
+  <thead>
+    <tr><th>ID</th><th>Type</th><th>Title</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for r in reports %}
+    <tr>
+      <td>{{ r.id }}</td>
+      <td>{{ r.report_type }}</td>
+      <td>{{ r.title }}</td>
+      <td>{{ r.status }}</td>
+      <td>{{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '—' }}</td>
+      <td>
+        {% if r.status == 'pending' %}
+        <a href="{{ url_for('admin.report_resolve', rid=r.id) }}" class="btn btn-sm btn-primary">Resolve</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

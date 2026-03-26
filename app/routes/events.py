@@ -94,6 +94,24 @@ def edit(id):
         event.event_date = datetime.strptime(ev_date, "%Y-%m-%d").date() if ev_date else None
         event.result_date = datetime.strptime(res_date, "%Y-%m-%d").date() if res_date else None
         
+        # Check if completed/participated
+        if event.stage in ["participated", "result_declared"]:
+            from app.models.mentor import MentorSuggestion, Message
+            sugg = MentorSuggestion.query.filter_by(
+                student_id=current_user.id, 
+                suggestion_type="event", 
+                title=event.name,
+                status="accepted"
+            ).first()
+            if sugg:
+                sugg.status = "completed"
+                msg = Message(
+                    sender_id=current_user.id,
+                    receiver_id=sugg.mentor_id,
+                    content=f"I have successfully participated in the event you suggested: '{sugg.title}'!"
+                )
+                db.session.add(msg)
+        
         db.session.commit()
         flash("Event updated.", "success")
         return redirect(url_for("events.list_view"))

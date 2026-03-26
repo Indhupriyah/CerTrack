@@ -1,0 +1,73 @@
+{% extends "mentor/base.html" %}
+{% block title %}Track Suggestions{% endblock %}
+{% block mentor_page_title %}Track Suggestions{% endblock %}
+{% block mentor_content %}
+
+<div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+    <a href="{{ url_for('mentor.suggest_event') }}" class="btn btn-primary">Suggest Event</a>
+    <a href="{{ url_for('mentor.suggest_certificate') }}" class="btn btn-secondary">Suggest Certificate</a>
+</div>
+
+<div class="card">
+    <h2>Accepted Students</h2>
+    <p class="text-muted">Students who have accepted your recommendations.</p>
+    {% if accepted_suggestions %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Suggestion</th>
+                <th>Type</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in accepted_suggestions %}
+            <tr>
+                <td>{{ s.student.display_name or s.student.email }}</td>
+                <td>{{ s.title }}</td>
+                <td><span class="badge" style="background:var(--accent); color:white;">{{ s.suggestion_type|title
+                        }}</span></td>
+                <td><span class="badge" style="background:var(--success); color:white;">{{ s.status|title }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No accepted suggestions yet.</p>
+    {% endif %}
+</div>
+
+<div class="card" style="margin-top: 2rem;">
+    <h2>Rejected Students</h2>
+    <p class="text-muted">Students who rejected recommendations and their reasons.</p>
+    {% if rejected_suggestions %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Suggestion</th>
+                <th>Type</th>
+                <th>Reason</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in rejected_suggestions %}
+            <tr>
+                <td>{{ s.student.display_name or s.student.email }}</td>
+                <td>{{ s.title }}</td>
+                <td><span class="badge" style="background:var(--accent); color:white;">{{ s.suggestion_type|title
+                        }}</span></td>
+                <td>{{ s.rejection_reason or 'No reason provided' }}</td>
+                <td><span class="badge" style="background:var(--danger); color:white;">Rejected</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No rejected suggestions.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

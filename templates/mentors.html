@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Mentors{% endblock %}
+{% block page_title %}Mentors{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom: 2rem;">
+    <h2>Available Mentors</h2>
+    <p class="text-muted">Browse our mentors and request guidance. You can have one active mentor at a time.</p>
+</div>
+
+{% if mentors %}
+<div class="dashboard-grid">
+    {% for mentor in mentors %}
+    <div class="card stat-card" style="align-items: flex-start; padding: 1.5rem;">
+        <h3 style="margin: 0; font-size: 1.25rem;">{{ mentor.display_name or 'Faculty Member' }}</h3>
+        <p class="text-muted" style="margin: 0.25rem 0 0.1rem; font-size: 0.9rem;"><strong>Email:</strong> {{
+            mentor.email }}</p>
+        {% if mentor.department %}
+        <p class="text-muted" style="margin: 0.1rem 0 1rem; font-size: 0.9rem;"><strong>Dept:</strong> {{
+            mentor.department }}</p>
+        {% else %}
+        <p class="text-muted" style="margin: 0.1rem 0 1rem; font-size: 0.9rem;"><strong>Dept:</strong> Not specified</p>
+        {% endif %}
+
+        {% if my_assignment and my_assignment.mentor_id == mentor.id %}
+        {% if my_assignment.status == 'pending' %}
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span class="badge badge-warning"
+                style="background: var(--warning); color: #1c1917; padding: 0.5rem 1rem;">Request Pending</span>
+            {% if can_cancel %}
+            <form action="{{ url_for('main.cancel_mentor', mentor_id=mentor.id) }}" method="POST" style="margin: 0;">
+                <button type="submit" class="btn btn-sm btn-danger">Cancel Request</button>
+            </form>
+            {% else %}
+            <span style="font-size: 0.8rem; color: var(--text-muted);">(Cancel window passed)</span>
+            {% endif %}
+        </div>
+        {% elif my_assignment.status == 'accepted' %}
+        <div style="display: flex; gap: 0.5rem;">
+            <span class="badge badge-success"
+                style="background: var(--success); color: white; padding: 0.5rem 1rem;">Accepted</span>
+            <a href="{{ url_for('main.mentor_messages', mentor_id=mentor.id) }}"
+                class="btn btn-sm btn-primary">Message</a>
+        </div>
+        {% elif my_assignment.status == 'rejected' %}
+        <form action="{{ url_for('main.request_mentor', mentor_id=mentor.id) }}" method="POST">
+            <button type="submit" class="btn btn-sm btn-secondary">Request Again</button>
+        </form>
+        {% endif %}
+        {% else %}
+        <form action="{{ url_for('main.request_mentor', mentor_id=mentor.id) }}" method="POST">
+            {% if my_assignment and my_assignment.status in ['pending', 'accepted'] %}
+            <button type="submit" class="btn btn-sm btn-secondary" disabled
+                title="You already have an active request/mentor">Request Mentor</button>
+            {% else %}
+            <button type="submit" class="btn btn-sm btn-primary">Request Mentor</button>
+            {% endif %}
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <p class="text-muted">No mentors available at this time.</p>
+</div>
+{% endif %}
+
+{% if my_assignment and my_assignment.status == 'accepted' %}
+<div style="margin-top: 3rem;">
+    <h2>Mentor Recommendations</h2>
+    <div
+        style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+        <button class="btn btn-secondary" onclick="showTab('events-tab')">
+            Events {% if suggested_events %}<span class="badge"
+                style="background:var(--danger);color:white;border-radius:50%;padding:2px 6px;">{{
+                suggested_events|length }}</span>{% endif %}
+        </button>
+        <button class="btn btn-secondary" onclick="showTab('certs-tab')">
+            Certificates {% if suggested_certs %}<span class="badge"
+                style="background:var(--danger);color:white;border-radius:50%;padding:2px 6px;">{{
+                suggested_certs|length }}</span>{% endif %}
+        </button>
+    </div>
+
+    <div id="events-tab" class="suggestion-tab" style="display: none;">
+        <h3>Suggested Events</h3>
+        {% if suggested_events %}
+        <div class="dashboard-grid">
+            {% for s in suggested_events %}
+            <div class="card">
+                <h4>{{ s.title }}</h4>
+                <p class="text-muted" style="margin-bottom:0.5rem;">{{ s.description }}</p>
+                <p style="font-size:0.9rem; margin:0.25rem 0;"><strong>Location:</strong> {{ s.location }}</p>
+                <p style="font-size:0.9rem; margin:0.25rem 0;"><strong>Team Size:</strong> {{ s.team_size or 'N/A' }}
+                </p>
+                {% if s.file_path %}
+                <p style="font-size:0.9rem; margin:0.25rem 0;"><a
+                        href="{{ url_for('main.uploaded_file', filename=s.file_path) }}" target="_blank">View Attached
+                        Details</a></p>
+                {% endif %}
+
+                <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <form action="{{ url_for('main.accept_suggestion', sugg_id=s.id) }}" method="POST">
+                        <button type="submit" class="btn btn-sm btn-primary">Accept</button>
+                    </form>
+                    <form action="{{ url_for('main.reject_suggestion', sugg_id=s.id) }}" method="POST"
+                        style="display:flex; gap:0.5rem;">
+                        <input type="text" name="reason" placeholder="Reason for rejecting" required
+                            style="padding:0.25rem; font-size:0.8rem; width:150px;">
+                        <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">No event recommendations right now.</p>
+        {% endif %}
+    </div>
+
+    <div id="certs-tab" class="suggestion-tab" style="display: none;">
+        <h3>Suggested Certificates</h3>
+        {% if suggested_certs %}
+        <div class="dashboard-grid">
+            {% for s in suggested_certs %}
+            <div class="card">
+                <h4>{{ s.title }}</h4>
+                <p style="font-size:0.9rem; margin:0.25rem 0;"><strong>Duration:</strong> {{ s.duration or 'N/A' }}</p>
+                <p style="font-size:0.9rem; margin:0.25rem 0;"><strong>Skills:</strong> {{ s.skills or 'N/A' }}</p>
+                {% if s.link %}
+                <p style="font-size:0.9rem; margin:0.25rem 0;"><a href="{{ s.link }}" target="_blank">Certificate
+                        Link</a></p>
+                {% endif %}
+
+                <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <form action="{{ url_for('main.accept_suggestion', sugg_id=s.id) }}" method="POST">
+                        <button type="submit" class="btn btn-sm btn-primary">Accept</button>
+                    </form>
+                    <form action="{{ url_for('main.reject_suggestion', sugg_id=s.id) }}" method="POST"
+                        style="display:flex; gap:0.5rem;">
+                        <input type="text" name="reason" placeholder="Reason for rejecting" required
+                            style="padding:0.25rem; font-size:0.8rem; width:150px;">
+                        <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted">No certificate recommendations right now.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function showTab(tabId) {
+        document.querySelectorAll('.suggestion-tab').forEach(t => t.style.display = 'none');
+        const tb = document.getElementById(tabId);
+        if (tb) tb.style.display = 'block';
+    }
+    // show first tab by default if it exists
+    showTab('events-tab');
+</script>
+{% endif %}
+
+{% endblock %}

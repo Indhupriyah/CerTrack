@@ -1,0 +1,25 @@
+{% extends "mentor/base.html" %}
+{% block title %}Suggest Certificate{% endblock %}
+{% block mentor_page_title %}Suggest Certificate to All Mentees{% endblock %}
+{% block mentor_content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <form method="post" class="form-card">
+        <label for="title">Certificate Name *</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="duration">Time Period / Duration</label>
+        <input type="text" id="duration" name="duration" placeholder="e.g. 4 weeks">
+
+        <label for="link">Certificate Link</label>
+        <input type="url" id="link" name="link" placeholder="e.g. https://coursera.org/...">
+
+        <label for="skills">Acquired Skills</label>
+        <input type="text" id="skills" name="skills" placeholder="e.g. Python, SQL, Data Analysis">
+
+        <div class="form-actions" style="margin-top: 1rem;">
+            <button type="submit" class="btn btn-primary">Suggest Certificate</button>
+            <a href="{{ url_for('mentor.dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

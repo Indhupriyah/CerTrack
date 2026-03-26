@@ -1,0 +1,73 @@
+{% extends "mentor/base.html" %}
+{% block title %}Messages with {{ other_user.display_name or other_user.email }}{% endblock %}
+{% block mentor_page_title %}Messages{% endblock %}
+{% block mentor_content %}
+
+<div class="card" style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Chat with Student: {{ other_user.display_name or other_user.email }}</h2>
+        <a href="{{ url_for('mentor.dashboard') }}" class="btn btn-sm btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="card" style="display: flex; flex-direction: column; min-height: 400px; max-height: 600px;">
+    <div
+        style="flex: 1; overflow-y: auto; padding-right: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+        {% if not messages %}
+        <p class="text-muted" style="text-align: center; margin-top: 2rem;">No messages yet.</p>
+        {% endif %}
+        {% for msg in messages %}
+        {% if msg.sender_id == current_user.id %}
+        <!-- Outgoing msg -->
+        <div
+            style="align-self: flex-end; background: var(--accent); color: white; padding: 0.75rem 1rem; border-radius: 12px 12px 0 12px; max-width: 75%;">
+            {% if msg.content %}
+            <div style="margin-bottom: 0.25rem;">{{ msg.content }}</div>
+            {% endif %}
+            {% if msg.file_path %}
+            <div style="margin-bottom: 0.5rem; background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 8px;">
+                <a href="{{ url_for('main.uploaded_file', filename=msg.file_path) }}" target="_blank"
+                    style="color: inherit; text-decoration: underline; font-size: 0.85rem;">
+                    📎 {{ msg.file_name or 'Attachment' }}
+                </a>
+            </div>
+            {% endif %}
+            <div style="font-size: 0.75rem; opacity: 0.8; text-align: right;">{{ msg.created_at.strftime('%I:%M %p') }}
+            </div>
+        </div>
+        {% else %}
+        <!-- Incoming msg -->
+        <div
+            style="align-self: flex-start; background: var(--bg); border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: 12px 12px 12px 0; max-width: 75%;">
+            {% if msg.content %}
+            <div style="margin-bottom: 0.25rem;">{{ msg.content }}</div>
+            {% endif %}
+            {% if msg.file_path %}
+            <div style="margin-bottom: 0.5rem; background: rgba(0,0,0,0.05); padding: 0.5rem; border-radius: 8px;">
+                <a href="{{ url_for('main.uploaded_file', filename=msg.file_path) }}" target="_blank"
+                    style="color: var(--primary); text-decoration: underline; font-size: 0.85rem;">
+                    📎 {{ msg.file_name or 'Attachment' }}
+                </a>
+            </div>
+            {% endif %}
+            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ msg.created_at.strftime('%I:%M %p') }}</div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    <form method="POST" enctype="multipart/form-data"
+        style="display: flex; gap: 0.5rem; border-top: 1px solid var(--border); padding-top: 1rem; align-items: center;">
+        <label for="attachment"
+            style="cursor: pointer; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text);"
+            title="Attach file or image">
+            📎
+            <input type="file" id="attachment" name="attachment" style="display: none;">
+        </label>
+        <input type="text" name="content" placeholder="Type your reply..."
+            style="flex: 1; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text);">
+        <button type="submit" class="btn btn-primary" style="padding: 0 1.5rem;">Send</button>
+    </form>
+</div>
+
+{% endblock %}

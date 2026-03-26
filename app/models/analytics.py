@@ -13,5 +13,6 @@ class Analytics(db.Model):
     login_count = db.Column(db.Integer, default=1)
     certifications_completed = db.Column(db.Integer, default=0)
     certifications_added = db.Column(db.Integer, default=0)
+    study_minutes = db.Column(db.Integer, default=0)  # for effort vs outcome
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

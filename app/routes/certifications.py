@@ -91,6 +91,23 @@ def edit(id):
         cert.expected_completion = datetime.strptime(exp, "%Y-%m-%d").date() if exp else None
         cert.completed_date = datetime.strptime(comp, "%Y-%m-%d").date() if comp else None
         
+        if cert.status == "completed":
+            from app.models.mentor import MentorSuggestion, Message
+            sugg = MentorSuggestion.query.filter_by(
+                student_id=current_user.id, 
+                suggestion_type="certificate", 
+                title=cert.name,
+                status="accepted"
+            ).first()
+            if sugg:
+                sugg.status = "completed"
+                msg = Message(
+                    sender_id=current_user.id,
+                    receiver_id=sugg.mentor_id,
+                    content=f"I have successfully completed the certificate you suggested: '{sugg.title}'!"
+                )
+                db.session.add(msg)
+        
         db.session.commit()
         flash("Certification updated.", "success")
         return redirect(url_for("certifications.list_view"))
@@ -150,6 +167,23 @@ def upload_certificate(id):
             cert.certificate_file = f"certificates/{filename}"
             cert.status = "completed"
             cert.completed_date = date.today()
+            
+            from app.models.mentor import MentorSuggestion, Message
+            sugg = MentorSuggestion.query.filter_by(
+                student_id=current_user.id, 
+                suggestion_type="certificate", 
+                title=cert.name,
+                status="accepted"
+            ).first()
+            if sugg:
+                sugg.status = "completed"
+                msg = Message(
+                    sender_id=current_user.id,
+                    receiver_id=sugg.mentor_id,
+                    content=f"I have successfully completed the certificate you suggested: '{sugg.title}'!"
+                )
+                db.session.add(msg)
+                
             db.session.commit()
             flash("Certificate uploaded successfully.", "success")
         else:
@@ -217,6 +251,8 @@ def update_status(id):
         if status == "completed" and old_status != "completed":
             today = date.today()
             from app.models.analytics import Analytics
+            from app.models.mentor import MentorSuggestion, Message
+            
             rec = Analytics.query.filter_by(
                 user_id=current_user.id,
                 activity_date=today
@@ -230,6 +266,21 @@ def update_status(id):
                     certifications_completed=1
                 )
                 db.session.add(rec)
+                
+            sugg = MentorSuggestion.query.filter_by(
+                student_id=current_user.id, 
+                suggestion_type="certificate", 
+                title=cert.name,
+                status="accepted"
+            ).first()
+            if sugg:
+                sugg.status = "completed"
+                msg = Message(
+                    sender_id=current_user.id,
+                    receiver_id=sugg.mentor_id,
+                    content=f"I have successfully completed the certificate you suggested: '{sugg.title}'!"
+                )
+                db.session.add(msg)
 
         db.session.commit()
         return jsonify({"ok": True, "status": cert.status})

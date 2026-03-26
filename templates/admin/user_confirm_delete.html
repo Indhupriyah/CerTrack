@@ -1,0 +1,11 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<h2>Confirm user deletion</h2>
+<p>User: <strong>{{ user.email }}</strong>. This will soft-deactivate the account (no hard delete).</p>
+<form method="post">
+  <input type="hidden" name="confirm" value="yes">
+  <label><input type="checkbox" required> I confirm</label>
+  <button type="submit" class="btn btn-danger">Deactivate user</button>
+</form>
+<p><a href="{{ url_for('admin.user_detail', user_id=user.id) }}">Cancel</a></p>
+{% endblock %}

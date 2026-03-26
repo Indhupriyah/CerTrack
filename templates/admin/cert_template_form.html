@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<h2>{{ 'Edit template' if template else 'New certification template' }}</h2>
+<form method="post" class="card" style="max-width: 500px;">
+  <label for="name">Name *</label>
+  <input type="text" name="name" id="name" value="{{ template.name if template else '' }}" required>
+  <label for="platform">Platform</label>
+  <input type="text" name="platform" id="platform" value="{{ template.platform if template else '' }}">
+  <label for="category">Category</label>
+  <input type="text" name="category" id="category" value="{{ template.category if template else '' }}" placeholder="e.g. Cloud, Security">
+  <label for="skill_tags">Skill tags (comma-separated)</label>
+  <input type="text" name="skill_tags" id="skill_tags" value="{{ template.skill_tags if template else '' }}">
+  <button type="submit" class="btn btn-primary">Save</button>
+</form>
+<p><a href="{{ url_for('admin.cert_templates') }}">← Back</a></p>
+{% endblock %}

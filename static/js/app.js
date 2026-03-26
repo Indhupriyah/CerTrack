@@ -1,5 +1,5 @@
 /* CerTrack - Dark mode & mobile menu */
-(function() {
+(function () {
   const themeKey = 'certrack-theme';
   const saved = localStorage.getItem(themeKey) || 'light';
   document.documentElement.setAttribute('data-theme', saved);
@@ -15,9 +15,18 @@
     });
   }
 
-  const menuToggle = document.getElementById('menuToggle');
+  const menuToggle = document.getElementById('mobileMenuToggle');
   const sidebar = document.getElementById('sidebar');
   if (menuToggle && sidebar) {
-    menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+    menuToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sidebar.classList.toggle('sidebar-open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (sidebar.classList.contains('sidebar-open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
+        sidebar.classList.remove('sidebar-open');
+      }
+    });
   }
 })();

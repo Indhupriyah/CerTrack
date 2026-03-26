@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<h2>User: {{ user.email }}</h2>
+<p>Name: {{ user.display_name or '—' }} · Certifications: {{ cert_count }} · Events: {{ event_count }}</p>
+<p>Status: {% if user.is_suspended %}Suspended{% else %}Active{% endif %}
+  · Mentor: {% if user.is_mentor %}Yes{% else %}No{% endif %}
+</p>
+<div class="admin-actions">
+  <form method="post" action="{{ url_for('admin.user_set_mentor', user_id=user.id) }}" style="display:inline;">
+    <button type="submit" class="btn btn-sm btn-secondary">{{ 'Remove mentor' if user.is_mentor else 'Set as Mentor'
+      }}</button>
+  </form>
+  {% if user.is_suspended %}
+  <form method="post" action="{{ url_for('admin.user_unsuspend', user_id=user.id) }}" style="display:inline;">
+    <button type="submit" class="btn btn-primary btn-sm">Unsuspend</button>
+  </form>
+  {% else %}
+  <form method="post" action="{{ url_for('admin.user_suspend', user_id=user.id) }}" style="display:inline;">
+    <button type="submit" class="btn btn-secondary btn-sm">Suspend</button>
+  </form>
+  {% endif %}
+  <form method="post" action="{{ url_for('admin.user_reset_password', user_id=user.id) }}" style="display:inline;"
+    class="inline-form">
+    <input type="password" name="new_password" placeholder="New password" minlength="6" required>
+    <button type="submit" class="btn btn-sm btn-secondary">Reset password</button>
+  </form>
+  {% if user.id != current_user.id %}
+  <a href="{{ url_for('admin.user_delete', user_id=user.id) }}" class="btn btn-danger btn-sm">Delete (soft)</a>
+  {% endif %}
+</div>
+<p><a href="{{ url_for('admin.user_list') }}">← Back to users</a></p>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<h2>Resolve report: {{ report.title }}</h2>
+<p>Type: {{ report.report_type }} · {{ report.description or '—' }}</p>
+<form method="post" class="card" style="max-width: 500px;">
+  <label for="admin_notes">Admin notes</label>
+  <textarea name="admin_notes" id="admin_notes" rows="3">{{ report.admin_notes or '' }}</textarea>
+  <button type="submit" class="btn btn-primary">Mark resolved</button>
+</form>
+<p><a href="{{ url_for('admin.reports') }}">← Back</a></p>
+{% endblock %}

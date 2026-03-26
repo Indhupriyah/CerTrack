@@ -1,0 +1,48 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<h2>Admin dashboard</h2>
+<div class="summary-cards">
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Total Students</span>
+            <i class='bx bx-group stat-icon'></i>
+        </div>
+        <span class="stat-value">{{ total_users }}</span>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Active (7 Days)</span>
+            <i class='bx bx-user-check stat-icon'></i>
+        </div>
+        <span class="stat-value">{{ active_7d }}</span>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Total Certifications</span>
+            <i class='bx bx-certification stat-icon'></i>
+        </div>
+        <span class="stat-value">{{ total_certs }}</span>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Total Events</span>
+            <i class='bx bx-calendar-event stat-icon'></i>
+        </div>
+        <span class="stat-value">{{ total_events }}</span>
+    </div>
+    <div class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Storage (MB)</span>
+            <i class='bx bx-hdd stat-icon'></i>
+        </div>
+        <span class="stat-value">{{ storage_mb|round(1) }}</span>
+    </div>
+    <div class="stat-card stat-danger">
+        <div class="stat-header">
+            <span class="stat-label">Deleted Count</span>
+            <i class='bx bx-trash stat-icon'></i>
+        </div>
+        <span class="stat-value">{{ deleted_count }}</span>
+    </div>
+</div>
+{% endblock %}

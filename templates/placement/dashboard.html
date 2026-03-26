@@ -1,0 +1,115 @@
+{% extends "placement/base.html" %}
+{% block title %}Analytics{% endblock %}
+{% block placement_page_title %}Institutional analytics{% endblock %}
+{% block placement_content %}
+<div class="placement-welcome">
+  <h2>Strategic Placement Analytics</h2>
+  <p class="placement-description">Evaluate career readiness • Analyze skill distribution • Identify top talent • Support recruitment planning</p>
+</div>
+
+<h3>Career Readiness Overview</h3>
+<div class="admin-metrics">
+  <div class="metric-card">
+    <span class="metric-value">{{ total_students }}</span>
+    <span class="metric-label">Total Students</span>
+  </div>
+  {% if readiness_distribution %}
+  <div class="metric-card">
+    <span class="metric-value">{{ readiness_distribution.get('8+', 0) }}</span>
+    <span class="metric-label">Job Ready (8+)</span>
+  </div>
+  <div class="metric-card">
+    <span class="metric-value">{{ readiness_distribution.get('5-7', 0) }}</span>
+    <span class="metric-label">Nearly Ready (5-7)</span>
+  </div>
+  <div class="metric-card">
+    <span class="metric-value">{{ readiness_distribution.get('0-4', 0) }}</span>
+    <span class="metric-label">Early Stage (0-4)</span>
+  </div>
+  {% endif %}
+</div>
+
+<h3 style="margin-top: 2rem;">📈 Certification Trend (Last 12 Months)</h3>
+{% if cert_trend %}
+<div class="placement-chart">
+  {% for month, count in cert_trend %}
+  <div class="chart-row"><span class="chart-label">{{ month }}</span><div class="chart-bar-wrap"><div class="chart-bar" style="width: {{ (count / max_cert_count * 100) if max_cert_count else 0 }}%"></div></div><span class="chart-value">{{ count }}</span></div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="chart-empty">No certification data yet.</p>
+{% endif %}
+
+<h3 style="margin-top: 2rem;">🎯 Institutional Skill Distribution</h3>
+{% if skill_coverage %}
+<div class="skill-coverage-container">
+  {% for skill, count in skill_coverage %}
+  <div class="skill-item">
+    <div class="skill-header">
+      <strong>{{ skill }}</strong>
+      <span class="skill-count">{{ count }} students</span>
+    </div>
+    <div class="skill-bar-wrap">
+      <div class="skill-bar" style="width: {{ (count / (skill_coverage|max(attribute='1')|attribute('1')) * 100) if skill_coverage else 0 }}%"></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="chart-empty">No skill data yet.</p>
+{% endif %}
+
+<h3 style="margin-top: 2rem;">📊 Career Readiness Distribution</h3>
+<div class="distribution-bars">
+  {% for bucket, count in readiness_distribution.items() %}
+  <div class="dist-row">
+    <span class="dist-label">{{ bucket }}</span>
+    <div class="dist-bar-wrap">
+      <div class="dist-bar" style="width: {{ (count / total_students * 100) if total_students else 0 }}%"></div>
+    </div>
+    <span class="dist-count">{{ count }} ({{ ((count / total_students * 100)|round(1)) if total_students else 0 }}%)</span>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="placement-actions" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+  <h3>📋 Explore & Filter Students</h3>
+  <p>Use advanced filtering to identify students for:</p>
+  <ul style="margin: 0.75rem 0; padding-left: 1.5rem;">
+    <li>Internship opportunities</li>
+    <li>Direct placement drives</li>
+    <li>Skill-specific training programs</li>
+    <li>Recruitment campaigns</li>
+  </ul>
+  <p><a href="{{ url_for('placement.students') }}" class="btn btn-primary" style="margin-top: 1rem;">Browse & Filter Students →</a></p>
+</div>
+
+<style>
+.placement-welcome { margin-bottom: 2rem; }
+.placement-welcome h2 { margin: 0 0 0.5rem; }
+.placement-description { color: var(--text-muted); margin: 0; font-size: 0.95rem; }
+.admin-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin: 1rem 0 2rem; }
+.metric-card { background: var(--bg-card); padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid var(--border); }
+.metric-value { display: block; font-size: 1.75rem; font-weight: 700; color: var(--accent); margin-bottom: 0.25rem; }
+.metric-label { display: block; font-size: 0.8rem; color: var(--text-muted); }
+.chart-label { min-width: 60px; }
+.chart-value { min-width: 30px; text-align: right; font-weight: 600; }
+.skill-coverage-container { display: grid; gap: 1.25rem; margin: 1rem 0; }
+.skill-item { background: var(--bg-card); padding: 1rem; border-radius: 8px; border: 1px solid var(--border); }
+.skill-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.skill-count { font-size: 0.85rem; color: var(--text-muted); background: var(--bg); padding: 0.2rem 0.6rem; border-radius: 4px; }
+.skill-bar-wrap { background: var(--border); border-radius: 4px; overflow: hidden; height: 6px; }
+.skill-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #8b5cf6); border-radius: 4px; }
+.dist-label { min-width: 70px; }
+.dist-count { min-width: 80px; text-align: right; font-weight: 600; }
+.dist-bar-wrap { background: var(--border); border-radius: 4px; overflow: hidden; height: 8px; }
+.dist-bar { height: 100%; background: linear-gradient(90deg, var(--success), #10b981); border-radius: 4px; }
+.placement-actions ul { color: var(--text-muted); }
+.placement-actions li { margin-bottom: 0.35rem; }
+@media (max-width: 640px) {
+  .admin-metrics { grid-template-columns: repeat(2, 1fr); }
+  .placement-chart { font-size: 0.85rem; }
+  .chart-row { grid-template-columns: 50px 1fr 30px !important; }
+}
+</style>
+{% endblock %}

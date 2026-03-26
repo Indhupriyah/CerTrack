@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<h2>Student Management</h2>
+<form method="get" class="search-form">
+  <input type="text" name="q" value="{{ search }}" placeholder="Search email or name">
+  <button type="submit" class="btn btn-primary">Search</button>
+</form>
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Email</th>
+      <th>Name</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.id }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ u.display_name or '—' }}</td>
+      <td>{% if u.is_suspended %}Suspended{% else %}Active{% endif %}</td>
+      <td>
+        <a href="{{ url_for('admin.user_detail', user_id=u.id) }}" class="btn btn-sm btn-secondary">View</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

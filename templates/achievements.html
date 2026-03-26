@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Achievements{% endblock %}
+{% block page_title %}Achievements{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom: 2rem;">
+    <h2 style="margin-bottom: 1rem;">Your Accomplishments</h2>
+    <form method="get" action="{{ url_for('main.achievements') }}"
+        style="display: flex; gap: 0.5rem; max-width: 400px;">
+        <input type="text" name="q" placeholder="Search certifications, events..." value="{{ query }}" style="flex: 1;"
+            autocomplete="off">
+        <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Search</button>
+    </form>
+</div>
+
+<h3>Certifications</h3>
+{% if certs %}
+<div class="achievements-grid">
+    {% for cert in certs %}
+    <div class="achievement-card">
+        <span class="provider">{% if cert.platform %}{{ cert.platform }}{% else %}Online Certification{% endif %}</span>
+        <h4 class="title">{{ cert.name }}</h4>
+        <div class="actions">
+            <span class="badge badge-completed">Completed</span>
+            {% if cert.certificate_file %}
+            <a href="{{ url_for('main.uploaded_file', filename=cert.certificate_file) }}" target="_blank"
+                class="btn btn-sm btn-primary">View Certificate</a>
+            {% elif cert.link %}
+            <a href="{{ cert.link }}" target="_blank" class="btn btn-sm btn-secondary">View Proof</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted card" style="text-align: center; padding: 2rem;">No completed certifications found.</p>
+{% endif %}
+
+<h3 style="margin-top: 3rem;">Event Participations</h3>
+{% if events %}
+<div class="achievements-grid">
+    {% for ev in events %}
+    <div class="achievement-card" style="border-top-color: var(--success);">
+        <span class="provider">{{ (ev.event_type or 'other')|replace('_', ' ')|title }}</span>
+        <h4 class="title">{{ ev.name }}</h4>
+        <div class="actions">
+            <span class="badge badge-in_progress" style="background: var(--success);">{{
+                ev.result_status|default('Winner')|replace('_', ' ')|title }}</span>
+            {% if ev.certificate_link %}
+            <a href="{{ ev.certificate_link }}" target="_blank" class="btn btn-sm btn-secondary">View Proof</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted card" style="text-align: center; padding: 2rem;">No completed events found.</p>
+{% endif %}
+
+{% endblock %}

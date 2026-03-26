@@ -6,7 +6,8 @@ from datetime import datetime
 
 @login_manager.user_loader
 def load_user(id):
-    return User.query.get(int(id))
+    u = User.query.get(int(id))
+    return u if u and not u.deleted_at else None
 
 
 class User(UserMixin, db.Model):
@@ -15,6 +16,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255))
+    username = db.Column(db.String(80), unique=True, nullable=True, index=True)  # for admin login
     
     # Profile
     display_name = db.Column(db.String(100))
@@ -29,6 +31,15 @@ class User(UserMixin, db.Model):
     last_activity_date = db.Column(db.Date)
     monthly_goal = db.Column(db.Integer, default=5)
     
+    # Admin & moderation
+    is_admin = db.Column(db.Boolean, default=False)
+    is_suspended = db.Column(db.Boolean, default=False)
+    deleted_at = db.Column(db.DateTime, nullable=True)  # soft delete
+    
+    is_mentor = db.Column(db.Boolean, default=False)
+    department = db.Column(db.String(100), nullable=True)
+    year_of_study = db.Column(db.String(50), nullable=True)
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -36,3 +47,9 @@ class User(UserMixin, db.Model):
     certifications = db.relationship("Certification", backref="user", lazy="dynamic", cascade="all, delete-orphan")
     events = db.relationship("Event", backref="user", lazy="dynamic", cascade="all, delete-orphan")
     analytics = db.relationship("Analytics", backref="user", lazy="dynamic", cascade="all, delete-orphan")
+    monthly_goals = db.relationship("MonthlyGoal", backref="user", lazy="dynamic", cascade="all, delete-orphan")
+    # Mentor: students assigned to this user when is_mentor
+    mentored_students = db.relationship(
+        "MentorAssignment", foreign_keys="MentorAssignment.mentor_id",
+        lazy="dynamic", cascade="all, delete-orphan"
+    )

@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<h2>File storage</h2>
+<p>Total: {{ files_info|length }} files · {{ total_mb }} MB</p>
+<table class="admin-table">
+  <thead>
+    <tr><th>Cert</th><th>User</th><th>Size (MB)</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for f in files_info %}
+    <tr>
+      <td>{{ f.cert.name }}</td>
+      <td>{{ f.cert.user_id }}</td>
+      <td>{{ f.size_mb }}</td>
+      <td>
+        <form method="post" action="{{ url_for('admin.storage_remove_file', cert_id=f.cert.id) }}" style="display:inline;">
+          <button type="submit" class="btn btn-sm btn-danger">Remove file</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

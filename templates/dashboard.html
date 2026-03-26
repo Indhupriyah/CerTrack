@@ -3,26 +3,42 @@
 {% block page_title %}Dashboard{% endblock %}
 {% block content %}
 <div class="dashboard premium-ui">
+  {% if show_inactive_reminder %}
+  <div class="alert alert-info opportunity-reminder">
+    <strong>You’ve been away for a while.</strong> Pick up where you left off — add a certification or log an event to
+    keep your progress and streak updated.
+    <a href="{{ url_for('certifications.list_view') }}">Add certification</a> · <a
+      href="{{ url_for('events.list_view') }}">Add event</a>
+  </div>
+  {% endif %}
   <section class="summary-cards">
     <a href="{{ url_for('certifications.list_view') }}" class="stat-card">
+      <div class="stat-header">
+        <span class="stat-label">Total Certifications</span>
+        <i class='bx bx-certification stat-icon'></i>
+      </div>
       <span class="stat-value">{{ total_certs }}</span>
-      <span class="stat-label">Total Certifications</span>
     </a>
     <a href="{{ url_for('certifications.list_view') }}" class="stat-card">
+      <div class="stat-header">
+        <span class="stat-label">Upcoming</span>
+        <i class='bx bx-time-five stat-icon'></i>
+      </div>
       <span class="stat-value">{{ upcoming }}</span>
-      <span class="stat-label">Upcoming</span>
     </a>
     <a href="{{ url_for('certifications.list_view') }}" class="stat-card">
+      <div class="stat-header">
+        <span class="stat-label">In Progress</span>
+        <i class='bx bx-loader-circle stat-icon'></i>
+      </div>
       <span class="stat-value">{{ in_progress }}</span>
-      <span class="stat-label">In Progress</span>
     </a>
     <a href="{{ url_for('certifications.list_view') }}" class="stat-card stat-success">
+      <div class="stat-header">
+        <span class="stat-label">Completed</span>
+        <i class='bx bx-check-circle stat-icon'></i>
+      </div>
       <span class="stat-value">{{ completed }}</span>
-      <span class="stat-label">Completed</span>
-    </a>
-    <a href="{{ url_for('events.list_view') }}" class="stat-card">
-      <span class="stat-value">{{ upcoming_events }}</span>
-      <span class="stat-label">Upcoming Events</span>
     </a>
   </section>
 
@@ -33,8 +49,11 @@
         {% for item in monthly_trend %}
         <div class="bar-row">
           <span class="bar-label">{{ item.month }}</span>
-          <div class="bar-track"><div class="bar-fill" style="width: {{ (item.count / (monthly_goal or 1) * 100) if monthly_goal else 0 }}%"></div></div>
-          <span class="bar-value">{{ item.count }}</span>
+          <div class="bar-track">
+            <div class="bar-fill"
+              style="width: {{ (item.count / (item.goal or 1) * 100) if (item.goal or 0) else 0 }}%"></div>
+          </div>
+          <span class="bar-value">{{ item.count }}/{{ item.goal }}</span>
         </div>
         {% else %}
         <p class="chart-empty">Complete certifications to see trends</p>
@@ -50,15 +69,19 @@
         <span class="goal-target">{{ monthly_goal }}</span>
       </div>
       <p class="goal-desc">certifications this month</p>
-      <div class="progress-bar premium"><div class="progress-fill" style="width: {{ (monthly_completed / monthly_goal * 100) if monthly_goal else 0 }}%"></div></div>
+      <div class="progress-bar premium">
+        <div class="progress-fill"
+          style="width: {{ (monthly_completed / monthly_goal * 100) if monthly_goal else 0 }}%"></div>
+      </div>
     </div>
 
     <div class="analytics-card">
       <h3>Overall Completion</h3>
       <div class="completion-ring">
         <svg viewBox="0 0 36 36">
-          <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-          <path class="ring-fill" stroke-dasharray="{{ completion_pct }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+          <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+          <path class="ring-fill" stroke-dasharray="{{ completion_pct }}, 100"
+            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
         </svg>
         <span class="ring-value">{{ completion_pct }}%</span>
       </div>
@@ -78,7 +101,10 @@
         {% for skill, count in skill_breakdown %}
         <div class="skill-row">
           <span class="skill-name">{{ skill }}</span>
-          <div class="skill-track"><div class="skill-fill" style="width: {{ (count / (skill_breakdown[0][1] if skill_breakdown else 1) * 100) }}%"></div></div>
+          <div class="skill-track">
+            <div class="skill-fill"
+              style="width: {{ (count / (skill_breakdown[0][1] if skill_breakdown else 1) * 100) }}%"></div>
+          </div>
           <span class="skill-count">{{ count }}</span>
         </div>
         {% endfor %}
@@ -102,6 +128,58 @@
       </ul>
       {% else %}
       <p class="chart-empty">No upcoming deadlines</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="insights-section">
+    <h2 class="section-heading">Career Strategy Insights</h2>
+    <div class="insights-grid">
+      <div class="analytics-card">
+        <h3>Deadline Risk Predictor</h3>
+        {% if deadline_risk and deadline_risk.get('items') %}
+        <p class="text-muted">Avg. completion time: {{ deadline_risk.avg_completion_days }} days</p>
+        <ul class="risk-list">
+          {% for r in deadline_risk['items'][:5] %}
+          <li>
+            <span>{{ r.name }}</span>
+            <span class="badge badge-{{ r.risk }}">{{ r.risk }}</span>
+            <span class="text-muted">{{ r.days_left }} days left</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="chart-empty">No active certifications to assess</p>
+        {% endif %}
+      </div>
+      <!-- Removed Failure Pattern section per request -->
+      <div class="analytics-card">
+        <h3>Effort vs Outcome</h3>
+        {% if effort_outcome %}
+        <p>Certs completed: <strong>{{ effort_outcome.completed_certs }}</strong> · Event wins: <strong>{{
+            effort_outcome.event_wins }}</strong></p>
+        <p class="hint">{{ effort_outcome.hint }}</p>
+        {% else %}
+        <p class="chart-empty">Log activity to see effort vs outcome</p>
+        {% endif %}
+      </div>
+      {% if gap_preview and default_role %}
+      <div class="analytics-card">
+        <h3>Career Gap ({{ default_role.name }})</h3>
+        <p>Acquired: {{ gap_preview.acquired_skills|length }} · Missing: {{ gap_preview.missing_skills|length }}</p>
+        <a href="{{ url_for('main.insights') }}">Full gap analyzer →</a>
+      </div>
+      {% endif %}
+      {% if path_mapping and path_mapping.suggested_next %}
+      <div class="analytics-card path-card">
+        <h3>Suggested Next Certs</h3>
+        <ul class="path-list">
+          {% for s in path_mapping.suggested_next[:5] %}
+          <li>{{ s.name }} <span class="text-muted">({{ s.category }})</span></li>
+          {% endfor %}
+        </ul>
+        <a href="{{ url_for('main.insights') }}">View path mapping →</a>
+      </div>
       {% endif %}
     </div>
   </div>

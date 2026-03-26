@@ -1,0 +1,47 @@
+{% extends "mentor/base.html" %}
+{% block title %}Suggest Event{% endblock %}
+{% block mentor_page_title %}Suggest Event to All Mentees{% endblock %}
+{% block mentor_content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <form method="post" enctype="multipart/form-data" class="form-card">
+        <label for="title">Event Name *</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="location">Location *</label>
+        <select id="location" name="location" required onchange="toggleOfflineLocation(this.value)">
+            <option value="Online">Online</option>
+            <option value="Offline">Offline</option>
+        </select>
+
+        <div id="offline-location-group" style="display: none;">
+            <label for="offline_location">Offline Location Details</label>
+            <input type="text" id="offline_location" name="offline_location" placeholder="e.g. Building A, Room 101">
+        </div>
+
+        <label for="team_size">Team Size</label>
+        <input type="text" id="team_size" name="team_size" placeholder="e.g. 3-4 members">
+
+        <label for="description">Event Description</label>
+        <textarea id="description" name="description" rows="4"></textarea>
+
+        <label for="file">File Upload (optional poster / details)</label>
+        <input type="file" id="file" name="file">
+
+        <div class="form-actions" style="margin-top: 1rem;">
+            <button type="submit" class="btn btn-primary">Suggest Event</button>
+            <a href="{{ url_for('mentor.dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function toggleOfflineLocation(val) {
+        const group = document.getElementById('offline-location-group');
+        if (val === 'Offline') {
+            group.style.display = 'block';
+        } else {
+            group.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

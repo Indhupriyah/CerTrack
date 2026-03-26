@@ -1,0 +1,25 @@
+{% extends "mentor/base.html" %}
+{% block title %}Mentor Profile{% endblock %}
+{% block mentor_page_title %}Mentor Settings{% endblock %}
+{% block mentor_content %}
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2>Edit Profile</h2>
+    <form method="POST" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+        <div>
+            <label for="display_name" style="display: block; margin-bottom: 0.5rem;"><strong>Name</strong></label>
+            <input type="text" id="display_name" name="display_name" value="{{ current_user.display_name or '' }}"
+                class="form-control" style="width: 100%; padding: 0.5rem;" required>
+        </div>
+
+        <div>
+            <label for="department" style="display: block; margin-bottom: 0.5rem;"><strong>Department</strong></label>
+            <input type="text" id="department" name="department" value="{{ current_user.department or '' }}"
+                class="form-control" style="width: 100%; padding: 0.5rem;" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="align-self: flex-start;">Save Settings</button>
+    </form>
+</div>
+
+{% endblock %}

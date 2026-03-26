@@ -1,0 +1,104 @@
+{% extends "mentor/base.html" %}
+{% block title %}{{ metrics.user.display_name or metrics.user.email }}{% endblock %}
+{% block mentor_page_title %}Student: {{ metrics.user.display_name or metrics.user.email }}{% endblock %}
+{% block mentor_content %}
+<p><a href="{{ url_for('mentor.dashboard') }}">← My students</a></p>
+<div class="mentor-student-metrics">
+  <div class="metrics-grid">
+    <div class="metric-card"><span class="metric-value">{{ metrics.certs_completed }}</span><span
+        class="metric-label">Certs completed</span></div>
+    <div class="metric-card"><span class="metric-value">{{ metrics.events_participated }}</span><span
+        class="metric-label">Events participated</span></div>
+    <div class="metric-card"><span class="metric-value">{{ metrics.productivity_score }}</span><span
+        class="metric-label">Productivity score</span></div>
+    <div class="metric-card"><span class="metric-value">{{ metrics.career_readiness_score }}</span><span
+        class="metric-label">Career readiness</span></div>
+  </div>
+  {% if metrics.inactive %}
+  <div class="alert alert-error">Inactive {{ metrics.days_inactive }} days. Consider reaching out.</div>
+  {% endif %}
+  {% if metrics.at_risk and metrics.deadline_risk.get('items') %}
+  <h3>Deadline risk</h3>
+  <ul>
+    {% for r in metrics.deadline_risk['items'] %}
+    <li>{{ r.name }} — <span class="badge badge-{{ r.risk }}">{{ r.risk }}</span> ({{ r.days_left }} days left)</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if metrics.gap and metrics.default_role %}
+  <h3>Career gap ({{ metrics.default_role.name }})</h3>
+  <p>Acquired: {{ metrics.gap.acquired_skills|length }} · Missing: {{ metrics.gap.missing_skills|length }}</p>
+  {% if metrics.gap.missing_skills %}
+  <p>Missing skills: {{ metrics.gap.missing_skills|join(", ") }}. Recommend certifications or workshops in these areas.
+  </p>
+  {% endif %}
+  {% endif %}
+  {% if metrics.path_mapping.suggested_next %}
+  <h3>Suggested next certifications</h3>
+  <ul>
+    {% for s in metrics.path_mapping.suggested_next[:5] %}
+    <li>{{ s.name }} ({{ s.category }})</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <h3>Completed Certifications</h3>
+  {% if metrics.completed_certs %}
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Platform</th>
+        <th>Date</th>
+        <th>Skills</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cert in metrics.completed_certs %}
+      <tr>
+        <td>{{ cert.name }}</td>
+        <td>{{ cert.platform or '—' }}</td>
+        <td>{{ cert.completed_date.strftime('%Y-%m-%d') if cert.completed_date else '—' }}</td>
+        <td>{{ cert.skill_tags or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="text-muted">No completed certifications yet.</p>
+  {% endif %}
+
+  <h3 style="margin-top: 2rem;">Event Participation</h3>
+  {% if metrics.events_list %}
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Event Name</th>
+        <th>Type</th>
+        <th>Date</th>
+        <th>Status / Stage</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ev in metrics.events_list %}
+      <tr>
+        <td>{{ ev.title }}</td>
+        <td>{{ ev.event_type }}</td>
+        <td>{{ ev.event_date.strftime('%Y-%m-%d') if ev.event_date else '—' }}</td>
+        <td>
+          {% if ev.stage == 'upcoming' %}<span class="badge badge-warning">Registered</span>
+          {% elif ev.stage == 'completed' %}<span class="badge badge-success">Participated</span>
+          {% elif ev.stage == 'result_declared' %}<span class="badge badge-info">Result Declared</span>
+          {% else %}<span class="badge">{{ ev.stage or '—' }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="text-muted">No registered events yet.</p>
+  {% endif %}
+
+</div>
+{% endblock %}

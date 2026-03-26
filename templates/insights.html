@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Career Insights{% endblock %}
+{% block page_title %}Career Insights{% endblock %}
+{% block content %}
+<div class="insights-page">
+  <h2>Career Gap Analyzer</h2>
+  <p class="text-muted">Select a target role to see required skills, what you have, and what to learn next. No AI — rules and your data only.</p>
+
+  <form method="get" class="role-select-form">
+    <label for="role_id">Target role</label>
+    <select name="role_id" id="role_id" onchange="this.form.submit()">
+      <option value="">— Select —</option>
+      {% for r in roles %}
+      <option value="{{ r.id }}" {% if selected_role and selected_role.id == r.id %}selected{% endif %}>{{ r.name }}</option>
+      {% endfor %}
+    </select>
+  </form>
+
+  {% if selected_role and gap %}
+  <div class="gap-section card">
+    <h3>{{ selected_role.name }}</h3>
+    <div class="gap-grid">
+      <div>
+        <h4>Required skills</h4>
+        <ul class="skill-tags">
+          {% for s in gap.required_skills %}
+          <li>{{ s }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div>
+        <h4>You have</h4>
+        <ul class="skill-tags acquired">
+          {% for s in gap.acquired_skills %}
+          <li>{{ s }}</li>
+          {% endfor %}
+        </ul>
+        {% if not gap.acquired_skills %}<p class="text-muted">None yet from completed certs/events.</p>{% endif %}
+      </div>
+      <div>
+        <h4>Missing</h4>
+        <ul class="skill-tags missing">
+          {% for s in gap.missing_skills %}
+          <li>{{ s }}</li>
+          {% endfor %}
+        </ul>
+        {% if not gap.missing_skills %}<p class="text-muted">You cover all required skills for this role.</p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if recommended %}
+  <div class="recommended-section card">
+    <h3>Recommended certifications / events</h3>
+    <ul class="recommended-list">
+      {% for r in recommended %}
+      <li><strong>{{ r.name }}</strong> {% if r.platform %}({{ r.platform }}){% endif %} <span class="text-muted">— {{ r.category }}</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  {% endif %}
+
+  <div class="path-section card">
+    <h3>Certification path (by category)</h3>
+    {% if path_mapping and path_mapping.by_category %}
+    <div class="path-by-category">
+      {% for cat, certs in path_mapping.by_category.items() %}
+      <div class="path-cat">
+        <h4>{{ cat }}</h4>
+        <ul>
+          {% for c in certs %}
+          <li>{{ c }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="chart-empty">Complete certifications with skill tags to see your path.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

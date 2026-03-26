@@ -1,0 +1,95 @@
+{% extends "mentor/base.html" %}
+{% block title %}My students{% endblock %}
+{% block mentor_page_title %}My students{% endblock %}
+{% block mentor_content %}
+
+{% if requests %}
+<h2>Connection Requests</h2>
+<table class="admin-table" style="margin-bottom: 2rem;">
+  <thead>
+    <tr>
+      <th>Student Info</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in requests %}
+    <tr>
+      <td>
+        <div style="font-weight: 600;">{{ r.student.display_name or '—' }}</div>
+        <div class="text-muted" style="font-size: 0.85rem;">{{ r.student.email }}</div>
+        {% if r.student.department %}
+        <div class="badge badge-info" style="margin-top: 0.25rem;">{{ r.student.department }}</div>
+        {% endif %}
+      </td>
+      <td>
+        <form action="{{ url_for('mentor.accept_request', assignment_id=r.assignment.id) }}" method="POST"
+          style="display: inline-block;">
+          <button type="submit" class="btn btn-sm btn-success"
+            style="background: var(--success); color: white;">Accept</button>
+        </form>
+        <form action="{{ url_for('mentor.reject_request', assignment_id=r.assignment.id) }}" method="POST"
+          style="display: inline-block;">
+          <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<h2>Assigned students</h2>
+{% if at_risk %}
+<div class="alert alert-error">{{ at_risk|length }} student(s) at risk (deadline high/overdue).</div>
+{% endif %}
+{% if inactive %}
+<div class="alert alert-info">{{ inactive|length }} student(s) inactive (no activity 14+ days).</div>
+{% endif %}
+{% if students %}
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Student</th>
+      <th>Certs</th>
+      <th>Events</th>
+      <th>Productivity</th>
+      <th>Readiness</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in students %}
+    <tr>
+      <td>{{ s.student.display_name or s.student.email }}</td>
+      <td>{{ s.metrics.certs_completed }}/{{ s.metrics.certs_total }}</td>
+      <td>{{ s.metrics.events_participated }}</td>
+      <td>{{ s.metrics.productivity_score }}</td>
+      <td>{{ s.metrics.career_readiness_score }}</td>
+      <td>
+        {% if s.metrics.inactive %}<span class="badge badge-inactive">Inactive</span>{% endif %}
+        {% if s.metrics.at_risk %}<span class="badge badge-risk">At risk</span>{% endif %}
+        {% if not s.metrics.inactive and not s.metrics.at_risk %}<span class="text-muted">OK</span>{% endif %}
+      </td>
+      <td>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <a href="{{ url_for('mentor.student_detail', student_id=s.student.id) }}"
+            class="btn btn-sm btn-primary">View</a>
+          <a href="{{ url_for('mentor.mentor_messages', student_id=s.student.id) }}"
+            class="btn btn-sm btn-secondary">Message</a>
+          <form action="{{ url_for('mentor.remove_student', student_id=s.student.id) }}" method="POST"
+            style="margin: 0;">
+            <button type="submit" class="btn btn-sm btn-danger"
+              onclick="return confirm('Are you sure you want to remove this assigned student?');">Remove</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="chart-empty">No students assigned. Ask admin to assign students to you.</p>
+{% endif %}
+{% endblock %}
